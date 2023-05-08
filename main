@@ -1,0 +1,90 @@
+// ==UserScript==
+// @name         Spelling Bee Solver
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  Find words epic style
+// @author       You
+// @match        https://www.nytimes.com/puzzles/spelling-bee
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=stackoverflow.com
+// @require      https://gist.githubusercontent.com/MaxHjarpe/7d63a850fbae24aa17f1e38a04db35c4/raw/e58d3c72a680b574a3e5094b6a899d9ad4766985/gistfile1.txt
+// @grant        none
+// ==/UserScript==
+const solveButton = document.createElement("button");
+solveButton.classList.add('AuthCTA-module_shareButton__ULVqS');
+solveButton.innerHTML = "Solve";
+solveButton.style.color = "white";
+solveButton.style.fontFamily = "nyt-franklin";
+solveButton.style.fontWeight = 'bold';
+solveButton.style.fontSize = '20px';
+solveButton.style.backgroundColor = "#538D4E";
+// solveButton.onclick = solve;
+document.querySelector("body > div > div > div.App-module_gameContainer__K_CBh > header > div.AppHeader-module_menuRight__Noasd").appendChild(solveButton);
+
+(function() {
+    const xhr = new XMLHttpRequest();
+
+    // Set the onload callback function
+    xhr.onload = function() {
+        // Check if the request was successful
+        if (xhr.status === 200) {
+            // Parse the response text as a string
+            const fileContents = xhr.responseText;
+            const myArray = fileContents.split(",");
+            const test = myArray.map((word) => {
+                return word.replace("\n", "");
+            })
+
+            let letters = getTodaysLetters();
+            console.log(letters);
+            // let wordToGuess = findPangram(letters, test);
+            // enterGuess(wordToGuess);
+
+        } else {
+            // Handle errors
+            console.error(`Error loading TXT file: ${xhr.statusText}`);
+        }
+    };
+
+    // Open the XHR request with the GET method
+    xhr.open("GET", "https://gist.githubusercontent.com/MaxHjarpe/e600cdb069072ca2d19f55628b998a56/raw/a8dd59bb02217b0e3d3c3a7d61e59f0d7a64eea4/gistfile1.txt");
+
+    // Set the response type to text
+    xhr.responseType = "text";
+
+    // Send the XHR request
+    xhr.send();
+
+    const getTodaysLetters = () => {
+        let nodes = document.querySelectorAll(".cell-letter");
+        let letters = [];
+        for (let i = 0; i < nodes.length; i++) {
+            letters[i] = nodes[i].innerHTML;
+        }
+        return letters;
+    }
+
+    const findPangram = (letters, words) => {
+
+        const filteredWords = words.filter(word => {
+            for (let letter of letters) {
+                if (!word.includes(letter)) {
+                    return false;
+                }
+            }
+
+            for (let letter of word) {
+                if (!letters.includes(letter)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+        console.log(filteredWords);
+        // return filteredWords[0];
+    }
+
+
+    // Your code here...
+})();
+
